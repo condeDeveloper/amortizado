@@ -1,0 +1,54 @@
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ${{ matrix.so }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        so: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Analise amortizada e sobre CUSTO, e custo medido com relogio nao serve
+      # aqui: o relogio mede o cache, o coletor de lixo, o compilador e a
+      # temperatura da maquina, e a diferenca entre dobrar e crescer de um em um
+      # aparece como ruido no meio disso tudo.
+      #
+      # O que este repositorio conta e OPERACAO: cada copia de item, cada passo
+      # de ponteiro, cada bit trocado. O numero que sai e o mesmo em qualquer
+      # maquina, e e sobre ele que a conta amortizada fala.
+      #
+      # E o METODO DO POTENCIAL, que normalmente e uma tecnica de prova feita no
+      # papel, aqui vira conferencia numerica: as duas condicoes que a prova
+      # precisa sao testadas a cada passo, com os numeros de verdade. Uma funcao
+      # de potencial mal escolhida quebra a primeira de maneira silenciosa, e a
+      # prova parece funcionar sem provar.
+      - name: testes
+        run: dotnet test testes/Amortizado.Testes/Amortizado.Testes.csproj -c Release --nologo -v q
+
+      - name: o vetor que cresce, e o fator que muda a classe de custo
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- vetor
+
+      - name: conjuntos disjuntos, e as duas otimizacoes
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- conjuntos
+
+      - name: a fila com duas pilhas
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- fila
+
+      - name: o contador binario
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- contador
+
+      - name: o metodo do potencial, conferido em cima dos numeros
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- potencial
