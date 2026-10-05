@@ -91,6 +91,43 @@ quinhentos passos, e a segunda custa um.
 É por isso que a análise amortizada é a única que faz sentido ali: analisar uma
 busca isolada não diz nada sobre a sequência.
 
+## A árvore que se adapta ao que está sendo pedido
+
+A árvore splay não guarda altura, não guarda cor e não guarda contador nenhum. A
+única coisa que ela faz é, a cada acesso, trazer o item acessado para a raiz por
+uma sequência de rotações.
+
+```
+$ dotnet medidor.dll splay
+
+  inserindo 0 a 999 em ordem crescente, a altura fica em 1000
+  a primeira busca no fundo custa 1000 e derruba a altura para 502
+  a segunda busca da mesma chave custa 1
+
+   chaves   acessos em       passos    por acesso   altura no fim
+     1000    10 chaves        5,407           5.4              70
+     4000    10 chaves       21,437           5.4             254
+    16000    10 chaves       86,040           5.4            1004
+    16000  100 chaves       151,224           9.5            1999
+    16000        todas      318,085          19.9              35
+```
+
+A coluna do custo por acesso é o achado: com dez chaves quentes ele fica em 5,4
+com mil chaves e em 5,4 com dezesseis mil. Ele **não cresce** com o tamanho da
+árvore.
+
+Uma árvore equilibrada cobraria o logaritmo em todo acesso, sempre: catorze
+passos com dezesseis mil chaves, inclusive para a chave pedida mil vezes
+seguidas. Nenhuma árvore de equilíbrio fixo tem essa propriedade.
+
+E com acessos espalhados ela se equilibra sozinha, sem guardar nada: a altura cai
+de dezesseis mil para 35.
+
+O caso ZIG-ZIG, em que o nó e o pai estão do mesmo lado, roda o **avô primeiro**, e
+não o pai. Essa ordem parece arbitrária e é o que faz a análise fechar: rodando o
+pai primeiro, a árvore sobe o nó do mesmo jeito e **não encurta o caminho dos
+outros**, e o custo amortizado deixa de ser o logaritmo.
+
 ## O método do potencial, conferido
 
 ```
@@ -142,6 +179,7 @@ dessa série é dois.
 | `VetorDinamico.cs` | o fator de crescimento como chave, e o espaço desperdiçado |
 | `Conjuntos.cs` | compressão de caminho e união por altura, ligáveis uma a uma |
 | `FilaComPilhas.cs` | a fila com duas pilhas e o contador binário |
+| `Splay.cs` | a árvore que se adapta, sem guardar altura nem cor |
 
 ## Como rodar
 
@@ -150,8 +188,8 @@ dotnet test testes/Amortizado.Testes/Amortizado.Testes.csproj -c Release
 dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- tudo
 ```
 
-As medidas aceitam `vetor`, `conjuntos`, `fila`, `contador`, `potencial` e
-`tudo`.
+As medidas aceitam `vetor`, `conjuntos`, `fila`, `contador`, `splay`, `potencial`
+e `tudo`.
 
 ## Licença
 
