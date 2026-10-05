@@ -50,5 +50,8 @@ jobs:
       - name: o contador binario
         run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- contador
 
+      - name: a arvore splay, que se adapta ao que esta sendo pedido
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- splay
+
       - name: o metodo do potencial, conferido em cima dos numeros
         run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- potencial
