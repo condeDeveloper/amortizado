@@ -124,15 +124,37 @@ public class SplayTestes
         Assert.InRange(porAcesso / logaritmo, 0.5, 2.5);
     }
 
+    /// <summary>
+    /// A busca que FALHA tambem sobe o ultimo no visitado. Se ela nao subisse, a
+    /// altura continuaria a mesma da corrente e a busca seguinte pagaria tudo de
+    /// novo.
+    ///
+    /// O lado importa, e isso me corrigiu: inserir 0 a 199 em ordem crescente
+    /// deixa o 199 na RAIZ, com a corrente descendo para a esquerda. Procurar
+    /// 500 visita so a raiz e nao mexe em nada. Procurar menos um e que percorre
+    /// a corrente inteira.
+    /// </summary>
     [Fact]
     public void ABuscaQueFalhaTambemSobeOUltimoVisitado()
     {
         var arvore = Splay.EmOrdem(200);
-        arvore.Buscar(500);
+        Assert.Equal(200, arvore.Altura);
 
-        // Se o ultimo visitado nao subisse, a altura continuaria a mesma da
-        // corrente e a busca seguinte pagaria tudo de novo.
-        Assert.True(arvore.Altura < 200);
+        arvore.Contador.Zerar();
+        Assert.False(arvore.Buscar(-1));
+
+        Assert.Equal(200, arvore.Contador.Total);
+        Assert.True(arvore.Altura < 200, $"a altura ficou em {arvore.Altura}");
+    }
+
+    [Fact]
+    public void ABuscaAcimaDoMaiorVisitaSoARaiz()
+    {
+        var arvore = Splay.EmOrdem(200);
+        arvore.Contador.Zerar();
+
+        Assert.False(arvore.Buscar(500));
+        Assert.Equal(1, arvore.Contador.Total);
     }
 
     [Fact]
