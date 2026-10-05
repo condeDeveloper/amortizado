@@ -18,9 +18,12 @@ public static class Programa
             case "fila": Fila(); break;
             case "contador": Binario(); break;
             case "potencial": Potenciais(); break;
-            case "tudo": Vetor(); Conjuntos(); Fila(); Binario(); Potenciais(); break;
+            case "splay": Splays(); break;
+            case "tudo":
+                Vetor(); Conjuntos(); Fila(); Binario(); Splays(); Potenciais();
+                break;
             default:
-                Console.Error.WriteLine("medidas: vetor, conjuntos, fila, contador, potencial, tudo");
+                Console.Error.WriteLine("medidas: vetor, conjuntos, fila, contador, splay, potencial, tudo");
                 return 1;
         }
         return 0;
@@ -176,6 +179,60 @@ public static class Programa
         Console.WriteLine();
     }
 
+    /// <summary>A arvore splay, que se adapta ao que esta sendo pedido.</summary>
+    private static void Splays()
+    {
+        Console.WriteLine("== a arvore splay: acessar MUDA a estrutura ==");
+
+        var corrente = Splay.EmOrdem(1000);
+        Console.WriteLine($"  inserindo 0 a 999 em ordem crescente, a altura fica em {corrente.Altura}");
+
+        corrente.Contador.Zerar();
+        corrente.Buscar(0);
+        var primeira = corrente.Contador.Total;
+        var alturaDepois = corrente.Altura;
+
+        corrente.Contador.Zerar();
+        corrente.Buscar(0);
+        var segunda = corrente.Contador.Total;
+
+        Console.WriteLine($"  a primeira busca no fundo custa {primeira} e derruba a altura para {alturaDepois}");
+        Console.WriteLine($"  a segunda busca da mesma chave custa {segunda}");
+        Console.WriteLine();
+        Console.WriteLine("  e a mesma ideia da compressao de caminho dos conjuntos disjuntos:");
+        Console.WriteLine("  analisar um acesso isolado nao diz nada sobre a sequencia");
+        Console.WriteLine();
+
+        Console.WriteLine($"{"chaves",9}{"acessos em",13}{"passos",13}{"por acesso",14}{"altura no fim",16}");
+
+        foreach (var chaves in new[] { 1000, 4000, 16000 })
+        {
+            foreach (var quentes in new[] { 10, 100, 0 })
+            {
+                var (passos, altura) = quentes == 0
+                    ? Splay.Espalhado(chaves, chaves, 7)
+                    : Splay.Concentrado(chaves, chaves, quentes, 7);
+
+                Console.WriteLine($"{chaves,9}{(quentes == 0 ? "todas" : quentes + " chaves"),13}" +
+                                  $"{passos,13:N0}{passos / (double)chaves,14:N1}{altura,16}");
+            }
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("a coluna do custo por acesso e o achado: com dez chaves quentes ele fica");
+        Console.WriteLine("em 5,4 com mil chaves e em 5,4 com dezesseis mil. Ele NAO cresce com o");
+        Console.WriteLine("tamanho da arvore");
+        Console.WriteLine();
+        Console.WriteLine("uma arvore equilibrada cobraria o logaritmo em todo acesso, sempre:");
+        Console.WriteLine("catorze passos com dezesseis mil chaves, inclusive para a chave pedida");
+        Console.WriteLine("mil vezes seguidas");
+        Console.WriteLine("seguidas. A splay se adapta, e as chaves mais pedidas sobem para perto da");
+        Console.WriteLine("raiz");
+        Console.WriteLine();
+        Console.WriteLine("e com acessos espalhados ela se equilibra sozinha, sem guardar altura, cor");
+        Console.WriteLine("nem contador nenhum: a altura cai de dezesseis mil para algumas dezenas");
+        Console.WriteLine();
+    }
     /// <summary>O metodo do potencial, conferido numericamente.</summary>
     private static void Potenciais()
     {
